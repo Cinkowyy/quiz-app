@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "express": "^4.18.2",
+    "typescript": "^5.1.3",
     "yarn": "^1.22.19"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1"
   }
 }
