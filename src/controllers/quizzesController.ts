@@ -1,5 +1,6 @@
 import { Response } from "express"
 import asyncHandler from "express-async-handler"
+import { Error } from "mongoose"
 
 import { TypedRequest } from "../types/global"
 import { IQuizRequestBody } from "../types/quizTypes"
@@ -39,21 +40,28 @@ export const createQuiz = asyncHandler(async (req: TypedRequest<IQuizRequestBody
     //     throw new Error("The quiz must have at least 5 questions")
     // }
 
-    const quiz = await Quiz.create({
-        title: validatedTitle,
-        questions: validatedQuestions,
-        author: req.userId
-    })
+    try{
+        const quiz = await Quiz.create({
+            title: validatedTitle,
+            questions: validatedQuestions,
+            author: req.userId
+        })
 
-    if(quiz) {
-        res.status(201)
-        res.json({
+        res.status(201).json({
             message: "Quiz added",
             quizId: quiz._id
         })
-    } else {
-        res.status(400)
-        throw new Error('Invalid quiz data or DB is down')
+        
+    } catch(error) {
+
+        if(error instanceof Error.ValidationError) {
+            console.log(error.errors)
+            res.status(400)
+            throw new Error('Invalid quiz data')
+        } else {
+            res.status(500)
+            throw new Error('Internal server error')
+        }
     }
 
 })

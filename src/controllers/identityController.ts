@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt'
 import { TypedRequest } from "../types/global"
 import { IUserRequestBody, ILoggingUser } from "../types/userTypes"
 import User from "../models/User"
+import { Error } from "mongoose"
 
 // @desc Register user
 // @route /identity/register
@@ -31,24 +32,29 @@ export const register = asyncHandler(async (req: TypedRequest<IUserRequestBody>,
     const hashedPassword = await bcrypt.hash(password, salt)
 
     // Create user
-    const user = await User.create({
-        nickname,
-        email,
-        password: hashedPassword
-    })
 
-    if (user) {
+    try {
+        const user = await User.create({
+            nickname,
+            email,
+            password: hashedPassword
+        })
         res.status(201).json({
             _id: user.id,
             nickname: user.nickname,
             email: user.email
         })
-    } else {
-        res.status(400)
-        throw new Error('Invalid user data')
+        
+    } catch (error) {
+        if(error instanceof Error.ValidationError) {
+            console.log(error.errors)
+            res.status(400)
+            throw new Error('Invalid user data')
+        } else {
+            res.status(500)
+            throw new Error('Internal server error')
+        }
     }
-
-
 })
 
 // @desc Login user
