@@ -3,8 +3,11 @@ import 'dotenv/config'
 
 import identityRoutes from "./src/routes/identityRoutes";
 import errorHandler from './src/middleware/errorMiddleware';
+import connectDB from './src/config/db';
 
 const port = process.env.PORT || 3000
+
+connectDB()
 
 const app = express()
 app.use(express.json())
