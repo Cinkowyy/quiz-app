@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config'
 
 import identityRoutes from "./src/routes/identityRoutes";
+import quizzesRoutes from "./src/routes/quizzesRoutes";
 import errorHandler from './src/middleware/errorMiddleware';
 import connectDB from './src/config/db';
 
@@ -23,6 +24,7 @@ app.get('/error', (req, res) => {
 })
 
 app.use('/identity', identityRoutes)
+app.use('/quizzes', quizzesRoutes)
 
 app.use(errorHandler)
 

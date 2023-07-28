@@ -1,3 +1,9 @@
+export interface IUser{
+    nickname: string
+    email: string
+    password: string 
+}
+
 export interface IUserRequestBody {
     nickname?: string
     email?: string

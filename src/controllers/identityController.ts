@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt'
 
 import { TypedRequest } from "../types/global"
 import { IUserRequestBody, ILoggingUser } from "../types/userTypes"
-import User from "../models/userModel"
+import User from "../models/User"
 
 // @desc Register user
 // @route /identity/register

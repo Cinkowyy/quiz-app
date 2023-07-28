@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler"
 import { NextFunction, Request, Response } from "express"
 import { IJwtTokenPayload } from '../types/global'
 
-import User from '../models/userModel'
+import User from '../models/User'
 
 const authorization = asyncHandler(async (req:Request , res: Response, next: NextFunction) => {
 
@@ -28,7 +28,7 @@ const authorization = asyncHandler(async (req:Request , res: Response, next: Nex
         // Verify token
         const decoded = Jwt.verify(token, process.env.JWT_SECRET) as IJwtTokenPayload;
 
-        const user = await User.findById('64c3b16331220784408af6bd')
+        const user = await User.findById(decoded.id)
        
         if(!user) {
             throw new Error("User not exists")
