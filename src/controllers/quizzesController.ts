@@ -5,6 +5,7 @@ import { TypedRequest } from "../types/global"
 import { IQuizRequestBody } from "../types/quizTypes"
 
 import Quiz from "../models/Quiz"
+import { quizSchema } from "../types/quizTypes"
 
 // @desc create new qiuz
 // @route /quizzes/createQuiz
@@ -13,31 +14,46 @@ export const createQuiz = asyncHandler(async (req: TypedRequest<IQuizRequestBody
 
     const { title, questions } = req.body
 
-    if (!title || !questions || typeof questions !== "object") {
+    if (!title || !questions) {
         res.status(400)
         throw new Error("Please add all required fields")
     }
 
-    if(Object.keys(questions).length < 1) {
+    const validatedQuiz = quizSchema.safeParse({
+        title,
+        questions
+    })
+
+    if(!validatedQuiz.success) {
+        console.log(validatedQuiz.error.errors)
         res.status(400)
-        throw new Error("The quiz must have at least 1 question")
+        throw new Error("Invalid quiz data")
     }
 
+    const {title: validatedTitle, questions: validatedQuestions} = validatedQuiz.data
+    
+    //Validate this in future
+
+    // if(Object.keys(validatedQuestions).length < 5) {
+    //     res.status(400)
+    //     throw new Error("The quiz must have at least 5 questions")
+    // }
+
     const quiz = await Quiz.create({
-        title,
-        questions,
+        title: validatedTitle,
+        questions: validatedQuestions,
         author: req.userId
     })
 
     if(quiz) {
-        console.log(quiz)
         res.status(201)
         res.json({
-            message: "Quiz added"
+            message: "Quiz added",
+            quizId: quiz._id
         })
     } else {
         res.status(400)
-        throw new Error('Invalid quiz data')
+        throw new Error('Invalid quiz data or DB is down')
     }
 
 })
