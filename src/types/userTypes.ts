@@ -1,16 +1,12 @@
-export interface IUser{
-    nickname: string
-    email: string
-    password: string 
-}
+import { z } from "zod";
 
-export interface IUserRequestBody {
-    nickname?: string
-    email?: string
-    password?: string 
-}
+export const userSchema = z.object({
+    nickname: z.string(),
+    email: z.string().email(),
+    password: z.string()
+})
+export type IUser = z.infer<typeof userSchema>
 
-export interface ILoggingUser {
-    email?: string
-    password?: string 
-}
+export type IUserRequestBody = Partial<IUser>
+
+export type ILoggingUser = Omit<IUserRequestBody, "nickname">

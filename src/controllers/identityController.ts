@@ -4,7 +4,7 @@ import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 import { TypedRequest } from "../types/global"
-import { IUserRequestBody, ILoggingUser } from "../types/userTypes"
+import { IUserRequestBody, ILoggingUser, userSchema } from "../types/userTypes"
 import User from "../models/User"
 import { Error } from "mongoose"
 
@@ -17,6 +17,18 @@ export const register = asyncHandler(async (req: TypedRequest<IUserRequestBody>,
     if (!nickname || !email || !password) {
         res.status(400)
         throw new Error("Please add all required fields")
+    }
+
+    const validatedUser = userSchema.safeParse({
+        nickname,
+        email,
+        password
+    })
+
+    if(!validatedUser.success) {
+        console.log(validatedUser.error.errors)
+        res.status(400)
+        throw new Error("Invalid user data")
     }
 
     // Check if user exists
