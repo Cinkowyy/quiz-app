@@ -87,7 +87,7 @@ const generateJwtToken = (userID: string) => {
     return Jwt.sign({
         id: userID
     }, 
-    process.env.JWT_SECRET as string, 
+    process.env.JWT_SECRET,
     {
         expiresIn: '2d'
     })

@@ -5,10 +5,20 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
 
     res.status(statusCode)
 
-    res.json({
-        message: err.message,
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack
-    })
+    let errorResponse;
+
+    if (process.env.NODE_ENV === 'development') {
+        errorResponse = {
+            message: err.message,
+            stack: err.stack
+        }
+    } else {
+        errorResponse = {
+            message: err.message,
+        }
+    }
+
+    res.json(errorResponse)
 }
 
 export default errorHandler
