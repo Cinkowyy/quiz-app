@@ -51,10 +51,8 @@ export const register = asyncHandler(async (req: TypedRequest<IUserRequestBody>,
             email,
             password: hashedPassword
         })
-        res.status(201).json({
-            _id: user.id,
-            nickname: user.nickname,
-            email: user.email
+        res.status(200).json({
+            message: "User created succesfully"
         })
         
     } catch (error) {
