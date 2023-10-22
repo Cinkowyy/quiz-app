@@ -1,14 +1,17 @@
 import express from 'express';
 import 'dotenv/config'
 
-import identityRoutes from "./src/routes/identityRoutes";
-import quizzesRoutes from "./src/routes/quizzesRoutes";
-import errorHandler from './src/middleware/errorMiddleware';
-import connectDB from './src/config/db';
+import getIdentityRoutes from "./routes/identityRoutes";
+import getQuizzesRoutes from "./routes/quizzesRoutes";
+import errorHandler from './middleware/errorMiddleware';
+import { PrismaClient } from '@prisma/client';
 
 const port = process.env.PORT || 3000
+const jwtSecret = process.env.JWT_SECRET
+if(!jwtSecret) throw new Error("No required ENV variables")
+console.log(port);
 
-connectDB()
+const prisma = new PrismaClient()
 
 const app = express()
 app.use(express.json())
@@ -28,8 +31,8 @@ app.get('/error', (req, res) => {
   throw new Error("Testowy errorek")
 })
 
-app.use('/identity', identityRoutes)
-app.use('/quizzes', quizzesRoutes)
+app.use('/identity', getIdentityRoutes({prisma, jwtSecret}))
+app.use('/quizzes', getQuizzesRoutes({prisma, jwtSecret}))
 
 app.use(errorHandler)
 

@@ -1,4 +1,3 @@
-import { ObjectId } from "mongoose";
 import { z } from "zod";
 
 export const quizSchema = z.object({
@@ -18,7 +17,7 @@ export const quizSchema = z.object({
 type quizType = z.infer<typeof quizSchema>;
 
 export interface IQuiz extends quizType {
-    author: ObjectId
+    author: string
 }
 
 export type IQuizRequestBody = Partial<quizType>

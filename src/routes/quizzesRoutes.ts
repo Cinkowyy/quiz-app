@@ -1,11 +1,18 @@
-import express from 'express';
+import {Router} from 'express';
 
-import authorization from '../middleware/authMiddleware';
-import { createQuiz, getQuizzes } from '../controllers/quizzesController';
+import getAuthorization from '../middleware/authMiddleware';
+import { getCreateQuizController, getQuizzesController } from '../controllers/quizzesController';
+import { PrismaClient } from '@prisma/client';
 
-const router = express.Router();
+const getQuizzesRoutes = ({prisma, jwtSecret}: {prisma: PrismaClient, jwtSecret: string}) => {
 
-router.post('/createQuiz', authorization, createQuiz)
-router.get('/getQuizzes', getQuizzes)
+    const router = Router();
+    
+    router.post('/createQuiz', getAuthorization({jwtSecret}), getCreateQuizController({prisma}))
+    router.get('/getQuizzes', getQuizzesController({prisma}))
 
-export default router
+    return router
+}
+
+
+export default getQuizzesRoutes

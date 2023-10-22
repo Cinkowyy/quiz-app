@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model answers {
+  id          String        @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  questionId  String        @db.VarChar(36)
+  content     String        @db.VarChar(255)
+  isCorrect   Boolean
+  updatedAt   DateTime      @default(now()) @db.Timestamp(0)
+  createdAt   DateTime      @default(now()) @db.Timestamp(0)
+  questions   questions     @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "answers_ibfk_1")
+  userAnswers userAnswers[]
+
+  @@index([questionId])
+}
+
+model questions {
+  id          String         @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  quizId      String         @db.VarChar(36)
+  content     String         @db.VarChar(255)
+  type        questions_type
+  updatedAt   DateTime       @default(now()) @db.Timestamp(0)
+  createdAt   DateTime       @default(now()) @db.Timestamp(0)
+  answers     answers[]
+  quizzes     quizzes        @relation(fields: [quizId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "questions_ibfk_1")
+  userAnswers userAnswers[]
+
+  @@index([quizId])
+}
+
+model quizzes {
+  id        String      @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  title     String      @db.VarChar(255)
+  author    String      @db.VarChar(36)
+  duration  Int
+  updatedAt DateTime    @default(now()) @db.Timestamp(0)
+  createdAt DateTime    @default(now()) @db.Timestamp(0)
+  questions questions[]
+  users     users       @relation(fields: [author], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_1")
+
+  @@index([author])
+}
+
+model userAnswers {
+  attemptId    String       @db.VarChar(36)
+  questionId   String       @db.VarChar(36)
+  answerId     String       @db.VarChar(36)
+  updatedAt    DateTime     @default(now()) @db.Timestamp(0)
+  createdAt    DateTime     @default(now()) @db.Timestamp(0)
+  userAttempts userAttempts @relation(fields: [attemptId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userAnswers_ibfk_1")
+  answers      answers      @relation(fields: [answerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userAnswers_ibfk_2")
+  questions    questions    @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userAnswers_ibfk_3")
+
+  @@id([attemptId, questionId, answerId])
+  @@index([answerId])
+  @@index([questionId])
+  @@index([attemptId])
+}
+
+model userAttempts {
+  id          String        @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  userId      String        @db.VarChar(36)
+  quizId      String        @db.VarChar(36)
+  updatedAt   DateTime      @default(now()) @db.Timestamp(0)
+  createdAt   DateTime      @default(now()) @db.Timestamp(0)
+  userAnswers userAnswers[]
+  users       users         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userAttempts_ibfk_1")
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([userId, quizId])
+}
+
+model users {
+  id           String         @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  nickname     String         @db.VarChar(255)
+  email        String         @db.VarChar(255)
+  password     String         @db.VarChar(255)
+  updatedAt    DateTime       @default(now()) @db.Timestamp(0)
+  createdAt    DateTime       @default(now()) @db.Timestamp(0)
+  quizzes      quizzes[]
+  userAttempts userAttempts[]
+  sessions     sessions[]
+
+  @@index([email])
+}
+
+model sessions {
+  id        String   @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  userId    String   @db.VarChar(36)
+  secret    String   @db.VarChar(255)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  user      users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@index([userId])
+  @@index([id, userId])
+}
+
+enum questions_type {
+  single
+  multi
+}

@@ -1,13 +1,20 @@
-import express from 'express';
+import {Router} from 'express';
 
-import { getUser, register, login } from '../controllers/identityController';
+import { getUserController, getRegisterController, getLoginController } from '../controllers/identityController';
 import authorization from '../middleware/authMiddleware';
+import { PrismaClient } from '@prisma/client';
 
-const router = express.Router();
+const getIdentityRoutes = ({prisma, jwtSecret}: {prisma: PrismaClient, jwtSecret: string}) => {
 
-router.post('/register', register)
-router.post('/login', login)
+    const router = Router();
+    
+    router.post('/register', getRegisterController({prisma}))
+    router.post('/login', getLoginController({prisma, jwtSecret}))
+    
+    router.get('/getUser', authorization, getUserController({prisma}))
 
-router.get('/getUser', authorization, getUser)
+    return router
+}
 
-export default router
+
+export default getIdentityRoutes

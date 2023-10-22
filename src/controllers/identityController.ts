@@ -1,110 +1,122 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import asyncHandler from "express-async-handler"
 import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 import { TypedRequest } from "../types/global"
 import { IUserRequestBody, ILoggingUser, userSchema } from "../types/userTypes"
-import User from "../models/User"
-import { Error } from "mongoose"
+import { PrismaClient } from "@prisma/client"
 
 // @desc Register user
 // @route /identity/register
 // @access Public
-export const register = asyncHandler(async (req: TypedRequest<IUserRequestBody>, res: Response) => {
-    const { nickname, email, password } = req.body;
+export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    if (!nickname || !email || !password) {
-        res.status(400)
-        throw new Error("Please add all required fields")
-    }
+    return asyncHandler(async (req: TypedRequest<IUserRequestBody>, res: Response, next: NextFunction) => {
+        const { nickname, email, password } = req.body;
 
-    const validatedUser = userSchema.safeParse({
-        nickname,
-        email,
-        password
-    })
+        if (!nickname || !email || !password) {
+            res.status(400)
+            throw new Error("Please add all required fields")
+        }
 
-    if(!validatedUser.success) {
-        console.log(validatedUser.error.errors)
-        res.status(400)
-        throw new Error("Invalid user data")
-    }
-
-    // Check if user exists
-    const userExists = await User.findOne({ email })
-
-    if (userExists) {
-        res.status(400)
-        throw new Error("User already exists")
-    }
-
-    //Hash password
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(password, salt)
-
-    // Create user
-
-    try {
-        const user = await User.create({
+        const validatedUser = userSchema.safeParse({
             nickname,
             email,
-            password: hashedPassword
+            password
         })
-        res.status(200).json({
-            message: "User created succesfully"
-        })
-        
-    } catch (error) {
-        if(error instanceof Error.ValidationError) {
-            console.log(error.errors)
+
+        if (!validatedUser.success) {
+            console.log(validatedUser.error.errors)
             res.status(400)
-            throw new Error('Invalid user data')
-        } else {
-            res.status(500)
-            throw new Error('Internal server error')
+            throw new Error("Invalid user data")
         }
-    }
-})
+
+        // Check if user exists
+        const userExists = await prisma.users.findFirst({ where: { email } })
+
+        if (userExists) {
+            res.status(400)
+            throw new Error("User already exists")
+        }
+
+        //Hash password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+
+        // Create user
+
+        try {
+            await prisma.users.create({
+                data: {
+                    nickname,
+                    email,
+                    password: hashedPassword
+                }
+            })
+            res.status(200).json({
+                message: "User created succesfully"
+            })
+
+        } catch (error) {
+            next(error);
+        }
+    })
+}
 
 // @desc Login user
 // @route /identity/login
 // @access Public
-export const login = asyncHandler(async (req: TypedRequest<ILoggingUser>, res: Response) => {
-    const { email, password } = req.body
+export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSecret: string }) => {
 
-    if (!email || !password) {
-        res.status(400)
-        throw new Error("Please add all required fields")
-    }
+    return asyncHandler(async (req: TypedRequest<ILoggingUser>, res: Response) => {
+        const { email, password } = req.body
 
-    const user = await User.findOne({ email })
+        if (!email || !password) {
+            res.status(400)
+            throw new Error("Please add all required fields")
+        }
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-        res.status(201).json({
-            accessToken: generateJwtToken(user.id)
-        })
-    } else {
-        res.status(400)
-        throw new Error('Invalid credentials')
-    }
-})
+        const user = await prisma.users.findFirst({ where: { email } })
+
+        if (user && (await bcrypt.compare(password, user.password))) {
+            res.status(201).json({
+                accessToken: generateJwtToken(user.id, jwtSecret)
+            })
+        } else {
+            res.status(400)
+            throw new Error('Invalid credentials')
+        }
+    })
+}
 
 // @desc get logged in user data
 // @route /identity/getUser
 // @access Private
-export const getUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await User.findById(req?.userId).select('-password')
-    res.json(user)
-})
+export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
+
+    return asyncHandler(async (req: Request, res: Response) => {
+        const userId = req?.userId
+
+        if(!userId) {
+            throw new Error("No user id in request")
+        }
+        
+        const user = await prisma.users.findFirst({
+            where: { id: userId },
+            select: { email: true, nickname: true }
+        })
+        res.json(user)
+    })
+}
 
 //Generate JWT
-const generateJwtToken = (userID: string) => {
+const generateJwtToken = (userID: string, jwtSecret: string) => {
     return Jwt.sign({
-        id: userID
-    }, 
-    process.env.JWT_SECRET,
+        sub: userID
+    },
+    jwtSecret,
     {
-        expiresIn: '2d'
+        expiresIn: '1d'
     })
 }
