@@ -9,7 +9,6 @@ import { PrismaClient } from '@prisma/client';
 const port = process.env.PORT || 3000
 const jwtSecret = process.env.JWT_SECRET
 if(!jwtSecret) throw new Error("No required ENV variables")
-console.log(port);
 
 const prisma = new PrismaClient()
 

@@ -1,15 +1,12 @@
-import { NextFunction, Request, Response } from "express"
+import { NextFunction, Response } from "express"
 import asyncHandler from "express-async-handler"
 import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
-import { TypedRequest } from "../types/global"
 import { IUserRequestBody, ILoggingUser, userSchema } from "../types/userTypes"
 import { PrismaClient } from "@prisma/client"
+import { RequestWithUserId, TypedRequest } from "../types/typedRequests"
 
-// @desc Register user
-// @route /identity/register
-// @access Public
 export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
     return asyncHandler(async (req: TypedRequest<IUserRequestBody>, res: Response, next: NextFunction) => {
@@ -64,9 +61,6 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
     })
 }
 
-// @desc Login user
-// @route /identity/login
-// @access Public
 export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSecret: string }) => {
 
     return asyncHandler(async (req: TypedRequest<ILoggingUser>, res: Response) => {
@@ -90,12 +84,9 @@ export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient
     })
 }
 
-// @desc get logged in user data
-// @route /identity/getUser
-// @access Private
 export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    return asyncHandler(async (req: Request, res: Response) => {
+    return asyncHandler(async (req: RequestWithUserId, res: Response) => {
         const userId = req?.userId
 
         if(!userId) {

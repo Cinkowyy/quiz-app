@@ -1,15 +1,12 @@
 import { Request, Response } from "express"
 import asyncHandler from "express-async-handler"
 
-import { TypedRequest } from "../types/global"
 import { IQuizRequestBody } from "../types/quizTypes"
 
 import { quizSchema } from "../types/quizTypes"
 import { PrismaClient } from "@prisma/client"
+import { TypedRequest } from "../types/typedRequests"
 
-// @desc create new qiuz
-// @route /quizzes/createQuiz
-// @access Private
 export const getCreateQuizController = ({prisma}: {prisma: PrismaClient}) => {
 
     return asyncHandler(async (req: TypedRequest<IQuizRequestBody>, res: Response) => {
@@ -59,9 +56,6 @@ export const getCreateQuizController = ({prisma}: {prisma: PrismaClient}) => {
     })
 }
 
-// @desc returns list of quizzes
-// @route /quizzes/getQuizzes
-// @access Public
 export const getQuizzesController = ({prisma}: {prisma: PrismaClient}) => {
     return asyncHandler(async (req: Request, res: Response) => {
     

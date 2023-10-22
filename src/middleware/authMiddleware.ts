@@ -1,10 +1,11 @@
 import Jwt from 'jsonwebtoken'
 import asyncHandler from "express-async-handler"
-import { NextFunction, Request, Response } from "express"
-import { IJwtTokenPayload } from '../types/global'
+import { NextFunction, Response } from "express"
+import { IJwtTokenPayload } from '../types/jwtTokenPayloadTypes'
+import { RequestWithUserId } from '../types/typedRequests'
 
 const getAuthorization = ({jwtSecret}: {jwtSecret: string}) => {
-    return asyncHandler(async (req:Request , res: Response, next: NextFunction) => {
+    return asyncHandler(async (req: RequestWithUserId , res: Response, next: NextFunction) => {
 
         if (!req.headers.authorization) {
             res.status(401)
