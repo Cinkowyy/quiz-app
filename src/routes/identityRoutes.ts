@@ -1,7 +1,7 @@
 import {Router} from 'express';
 
 import { getUserController, getRegisterController, getLoginController } from '../controllers/identityController';
-import authorization from '../middleware/authMiddleware';
+import getAuthorization from '../middleware/authMiddleware';
 import { PrismaClient } from '@prisma/client';
 
 const getIdentityRoutes = ({prisma, jwtSecret}: {prisma: PrismaClient, jwtSecret: string}) => {
@@ -11,7 +11,7 @@ const getIdentityRoutes = ({prisma, jwtSecret}: {prisma: PrismaClient, jwtSecret
     router.post('/register', getRegisterController({prisma}))
     router.post('/login', getLoginController({prisma, jwtSecret}))
     
-    router.get('/getUser', authorization, getUserController({prisma}))
+    router.get('/getUser', getAuthorization({jwtSecret}), getUserController({prisma}))
 
     return router
 }

@@ -10,7 +10,9 @@ const port = process.env.PORT || 3000
 const jwtSecret = process.env.JWT_SECRET
 if(!jwtSecret) throw new Error("No required ENV variables")
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+})
 
 const app = express()
 app.use(express.json())

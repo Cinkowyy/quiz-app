@@ -2,13 +2,16 @@ import { z } from "zod";
 
 export const quizSchema = z.object({
     title: z.string(),
-    questions: z.record(z.string(), z.object({
+    duration: z.number(),
+    questions: z.array(z.object({
         content: z.string(),
-        answers: z.record(z.string(), z.string())
-            .refine((data) => Object.keys(data).length > 1, {
+        type: z.enum(['single', 'multi']),
+        answers: z.array(z.object({
+            content: z.string(),
+            isCorrect: z.boolean()
+        })).refine((data) => Object.keys(data).length > 1, {
                 message: "Answers record must have at least 2 answers",
             }),
-        correctAnswer: z.string()
     })).refine((data) => Object.keys(data).length > 0, {
         message: "Record must not be empty",
     }),

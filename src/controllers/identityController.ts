@@ -1,5 +1,4 @@
 import { NextFunction, Response } from "express"
-import asyncHandler from "express-async-handler"
 import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
@@ -9,7 +8,7 @@ import { RequestWithUserId, TypedRequest } from "../types/typedRequests"
 
 export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    return asyncHandler(async (req: TypedRequest<IUserRequestBody>, res: Response, next: NextFunction) => {
+    return async (req: TypedRequest<IUserRequestBody>, res: Response, next: NextFunction) => {
         const { nickname, email, password } = req.body;
 
         if (!nickname || !email || !password) {
@@ -58,12 +57,12 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
         } catch (error) {
             next(error);
         }
-    })
+    }
 }
 
 export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSecret: string }) => {
 
-    return asyncHandler(async (req: TypedRequest<ILoggingUser>, res: Response) => {
+    return async (req: TypedRequest<ILoggingUser>, res: Response) => {
         const { email, password } = req.body
 
         if (!email || !password) {
@@ -81,24 +80,28 @@ export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient
             res.status(400)
             throw new Error('Invalid credentials')
         }
-    })
+    }
 }
 
 export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    return asyncHandler(async (req: RequestWithUserId, res: Response) => {
-        const userId = req?.userId
-
-        if(!userId) {
-            throw new Error("No user id in request")
+    return async (req: RequestWithUserId, res: Response) => {
+        try {            
+            const userId = req?.userId
+    
+            if (!userId) {
+                throw new Error("No user id in request")
+            }
+    
+            const user = await prisma.users.findFirst({
+                where: { id: userId },
+                select: { email: true, nickname: true }
+            })
+            res.json(user)
+        } catch (error) {
+            console.log(error)
         }
-        
-        const user = await prisma.users.findFirst({
-            where: { id: userId },
-            select: { email: true, nickname: true }
-        })
-        res.json(user)
-    })
+    }
 }
 
 //Generate JWT
@@ -106,8 +109,8 @@ const generateJwtToken = (userID: string, jwtSecret: string) => {
     return Jwt.sign({
         sub: userID
     },
-    jwtSecret,
-    {
-        expiresIn: '1d'
-    })
+        jwtSecret,
+        {
+            expiresIn: '1d'
+        })
 }
