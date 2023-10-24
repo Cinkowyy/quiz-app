@@ -1,10 +1,10 @@
 import Jwt from 'jsonwebtoken'
 import { NextFunction, Response } from "express"
 import { IJwtTokenPayload } from '../types/jwtTokenPayloadTypes'
-import { RequestWithUserId } from '../types/typedRequests'
+import { AuthorizedRequest } from '../types/typedRequests'
 
 const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
-    return async (req: RequestWithUserId, res: Response, next: NextFunction) => {
+    return async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
 
         try {
 

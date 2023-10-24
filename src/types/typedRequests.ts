@@ -1,9 +1,9 @@
 import { Request } from "express"
 
-export interface RequestWithUserId extends Request {
+export interface AuthorizedRequest extends Request {
     userId?: string
 }
 
-export interface TypedRequest<T> extends RequestWithUserId {
+export interface TypedRequest<T> extends AuthorizedRequest {
     body: T
 }

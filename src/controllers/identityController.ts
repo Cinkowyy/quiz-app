@@ -2,9 +2,9 @@ import { NextFunction, Response } from "express"
 import Jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
-import { IUserRegisterBody, ILoggingUser } from "../types/userTypes"
+import { IUserLoginBody, IUserRegisterBody } from "../types/userTypes"
 import { PrismaClient } from "@prisma/client"
-import { RequestWithUserId, TypedRequest } from "../types/typedRequests"
+import { AuthorizedRequest, TypedRequest } from "../types/typedRequests"
 
 export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
@@ -17,8 +17,9 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
             const userExists = await prisma.users.findFirst({ where: { email } })
 
             if (userExists) {
-                res.status(400)
-                throw new Error("User already exists")
+                return res.status(400).json({
+                    message: "User already exists"
+                })
             }
 
             //Hash password
@@ -33,6 +34,7 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
                     password: hashedPassword
                 }
             })
+            
             res.status(200).json({
                 message: "User created succesfully"
             })
@@ -45,30 +47,39 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
 export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSecret: string }) => {
 
-    return async (req: TypedRequest<ILoggingUser>, res: Response) => {
-        const { email, password } = req.body
+    return async (req: TypedRequest<IUserLoginBody>, res: Response, next: NextFunction) => {
+        try {
+            const { email, password } = req.body
 
-        if (!email || !password) {
-            res.status(400)
-            throw new Error("Please add all required fields")
-        }
+            const user = await prisma.users.findFirst({ where: { email } })
 
-        const user = await prisma.users.findFirst({ where: { email } })
+            if (!user) {
+                return res.status(400).json({
+                    message: 'Invalid credentials'
+                })
+            }
 
-        if (user && (await bcrypt.compare(password, user.password))) {
+            const isPasswordValid = await bcrypt.compare(password, user.password)
+
+            if (!isPasswordValid) {
+                return res.status(400).json({
+                    message: 'Invalid credentials'
+                })
+            }
+
             res.status(201).json({
                 accessToken: generateJwtToken(user.id, jwtSecret)
             })
-        } else {
-            res.status(400)
-            throw new Error('Invalid credentials')
+
+        } catch (error) {
+            next(error)
         }
     }
 }
 
 export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    return async (req: RequestWithUserId, res: Response) => {
+    return async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req?.userId
 
@@ -83,6 +94,7 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
             res.json(user)
         } catch (error) {
             console.log(error)
+            next(error)
         }
     }
 }
