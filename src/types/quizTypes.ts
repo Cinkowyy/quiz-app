@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const quizSchema = z.object({
-    title: z.string(),
+    title: z.string({
+        required_error: "Title is required"
+      }),
     duration: z.number(),
     questions: z.array(z.object({
         content: z.string(),
