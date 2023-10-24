@@ -19,8 +19,4 @@ export const quizSchema = z.object({
 
 type quizType = z.infer<typeof quizSchema>;
 
-export interface IQuiz extends quizType {
-    author: string
-}
-
 export type IQuizRequestBody = Partial<quizType>
