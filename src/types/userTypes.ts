@@ -1,12 +1,15 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
+const userSchema = z.object({
     nickname: z.string(),
     email: z.string().email(),
     password: z.string()
 })
-export type IUser = z.infer<typeof userSchema>
 
-export type IUserRequestBody = Partial<IUser>
+export const registerValidationSchema = z.object({
+    body: userSchema
+})
 
-export type ILoggingUser = Omit<IUserRequestBody, "nickname">
+export type IUserRegisterBody = z.infer<typeof userSchema>
+
+export type ILoggingUser = Partial<Omit<IUserRegisterBody, "nickname">>
