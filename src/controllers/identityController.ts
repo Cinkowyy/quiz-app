@@ -1,5 +1,4 @@
 import { NextFunction, Response } from "express"
-import Jwt from 'jsonwebtoken'
 import crypto from "crypto";
 
 import { IUserLoginBody, IUserRegisterBody } from "../types/userTypes"
