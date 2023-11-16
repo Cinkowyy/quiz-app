@@ -8,7 +8,13 @@ import { PrismaClient } from '@prisma/client';
 
 const port = process.env.PORT || 3000
 const jwtSecret = process.env.JWT_SECRET
-if(!jwtSecret) throw new Error("No required ENV variables")
+if (!jwtSecret) throw new Error("No required ENV variables")
+
+const jwtInfo = {
+  secret: jwtSecret,
+  timeout: "1h",
+  refreshTokenTimeout: "1d"
+}
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -32,8 +38,8 @@ app.get('/error', (req, res) => {
   throw new Error("Testowy errorek")
 })
 
-app.use('/identity', getIdentityRoutes({prisma, jwtSecret}))
-app.use('/quizzes', getQuizzesRoutes({prisma, jwtSecret}))
+app.use('/identity', getIdentityRoutes({ prisma, jwtInfo }))
+app.use('/quizzes', getQuizzesRoutes({ prisma, jwtInfo }))
 
 app.use(errorHandler)
 

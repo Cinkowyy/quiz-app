@@ -81,6 +81,8 @@ model users {
   id           String         @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
   nickname     String         @db.VarChar(255)
   email        String         @db.VarChar(255)
+  salt         String         @db.VarChar(64)
+  iterations   Int
   password     String         @db.VarChar(255)
   updatedAt    DateTime       @default(now()) @db.Timestamp(0)
   createdAt    DateTime       @default(now()) @db.Timestamp(0)
@@ -99,6 +101,7 @@ model sessions {
   createdAt DateTime @default(now()) @db.Timestamp(0)
   expiresAt DateTime @db.Timestamp(0)
   user      users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
   @@index([userId])
   @@index([id, userId])
 }

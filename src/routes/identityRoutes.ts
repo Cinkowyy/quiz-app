@@ -6,8 +6,9 @@ import validation from '../middleware/validationMiddleware';
 import { PrismaClient } from '@prisma/client';
 import { loginSchema, registerSchema } from '../types/userTypes';
 import { z } from 'zod';
+import { JwtInfo } from '../utils/jwtInfo';
 
-const getIdentityRoutes = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSecret: string }) => {
+const getIdentityRoutes = ({ prisma, jwtInfo }: { prisma: PrismaClient, jwtInfo: JwtInfo}) => {
 
     const router = Router();
 
@@ -21,9 +22,9 @@ const getIdentityRoutes = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSec
         body: loginSchema
     })
 
-    router.post('/login', validation(loginValidationSchema), getLoginController({ prisma, jwtSecret }))
+    router.post('/login', validation(loginValidationSchema), getLoginController({ prisma, jwtInfo }))
 
-    router.get('/getUser', getAuthorization({ jwtSecret }), getUserController({ prisma }))
+    router.get('/getUser', getAuthorization({ jwtSecret: jwtInfo.secret }), getUserController({ prisma }))
 
     return router
 }

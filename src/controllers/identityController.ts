@@ -1,10 +1,13 @@
 import { NextFunction, Response } from "express"
 import Jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+import crypto from "crypto";
 
 import { IUserLoginBody, IUserRegisterBody } from "../types/userTypes"
 import { PrismaClient } from "@prisma/client"
 import { AuthorizedRequest, TypedRequest } from "../types/typedRequests"
+import { getHashedPassword } from "../utils/passwordManager"
+import { createSession } from "../utils/sessionManager";
+import { JwtInfo } from "../utils/jwtInfo";
 
 export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
@@ -22,16 +25,23 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
                 })
             }
 
-            //Hash password
-            const salt = await bcrypt.genSalt(10)
-            const hashedPassword = await bcrypt.hash(password, salt)
-
+            //hash password
+            const salt = crypto.randomBytes(16).toString("hex");
+            const iterations = 600000;
+            const hashedPassword = getHashedPassword({
+              password,
+              salt,
+              iterations,
+            });
+    
             // Create user
             await prisma.users.create({
                 data: {
                     nickname,
                     email,
-                    password: hashedPassword
+                    password: hashedPassword,
+                    salt,
+                    iterations
                 }
             })
             
@@ -45,7 +55,7 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
     }
 }
 
-export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient, jwtSecret: string }) => {
+export const getLoginController = ({ prisma, jwtInfo}: { prisma: PrismaClient, jwtInfo: JwtInfo }) => {
 
     return async (req: TypedRequest<IUserLoginBody>, res: Response, next: NextFunction) => {
         try {
@@ -59,16 +69,27 @@ export const getLoginController = ({ prisma, jwtSecret }: { prisma: PrismaClient
                 })
             }
 
-            const isPasswordValid = await bcrypt.compare(password, user.password)
+            const hashedPassword = getHashedPassword({
+                password,
+                salt: user.salt,
+                iterations: user.iterations,
+              });
 
-            if (!isPasswordValid) {
+            if (hashedPassword !== user.password) {
                 return res.status(400).json({
                     message: 'Invalid credentials'
                 })
             }
 
+            const {accessToken, refreshToken} =  await createSession({
+                prisma,
+                userId: user.id,
+                jwtInfo
+            })
+
             res.status(201).json({
-                accessToken: generateJwtToken(user.id, jwtSecret)
+                accessToken,
+                refreshToken
             })
 
         } catch (error) {
@@ -91,7 +112,7 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
                 where: { id: userId },
                 select: { email: true, nickname: true }
             })
-            res.json(user)
+            res.status(200).json(user)
         } catch (error) {
             console.log(error)
             next(error)

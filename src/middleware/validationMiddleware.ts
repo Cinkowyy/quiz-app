@@ -19,7 +19,7 @@ const validation = (schema: SchemaType) => (req: Request, res: Response, next: N
 
   if (!validated.success) {
     console.log(validated.error.errors)
-    res.status(400).json({
+    return res.status(400).json({
       type: 'Validation Error',
       errors: validated.error.errors
     })

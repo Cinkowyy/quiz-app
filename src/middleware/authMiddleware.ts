@@ -9,19 +9,23 @@ const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
         try {
 
             if (!req.headers.authorization) {
-                res.status(401)
-                throw new Error("Missing Authorization header")
+                return res.status(401).json({
+                    message: "Missing Authorization header"
+                })
+
             }
-    
+
             if (!req.headers.authorization.startsWith("Bearer")) {
-                res.status(401)
-                throw new Error("Invalid Authorization header")
+                return res.status(401).json({
+                    message: "Invalid Authorization header"
+                })
             }
-    
+
             const token = req.headers.authorization.split(' ')[1]
             if (!token) {
-                res.status(401)
-                throw new Error("Unauthorized, missing token")
+                return res.status(401).json({
+                    message: "Unauthorized, missing token"
+                })
             }
 
             // Verify token
@@ -32,8 +36,9 @@ const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
             next()
         } catch (error) {
             console.log(error)
-            res.status(401)
-            throw new Error("Unauthorized")
+            return res.status(401).json({
+                message: 'Unauthorized'
+            })
         }
 
     }
