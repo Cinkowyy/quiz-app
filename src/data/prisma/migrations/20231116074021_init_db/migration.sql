@@ -85,6 +85,7 @@ CREATE TABLE `sessions` (
     `secret` VARCHAR(255) NOT NULL,
     `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `expiresAt` TIMESTAMP(0) NOT NULL,
 
     INDEX `sessions_userId_idx`(`userId`),
     INDEX `sessions_id_userId_idx`(`id`, `userId`),
