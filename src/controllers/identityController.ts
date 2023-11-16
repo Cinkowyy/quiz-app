@@ -119,14 +119,3 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
         }
     }
 }
-
-//Generate JWT
-const generateJwtToken = (userID: string, jwtSecret: string) => {
-    return Jwt.sign({
-        sub: userID
-    },
-        jwtSecret,
-        {
-            expiresIn: '1d'
-        })
-}
