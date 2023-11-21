@@ -1,53 +1,37 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 
-import { IQuizRequestBody } from "../types/quizTypes"
-
-import { quizSchema } from "../types/quizTypes"
 import { PrismaClient } from "@prisma/client"
 import { TypedRequest } from "../types/typedRequests"
+import { quizRequestBody } from "../types/quizTypes"
 
 export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    return async (req: TypedRequest<IQuizRequestBody>, res: Response) => {
-
-        const { title, questions, duration } = req.body
-
-        if (!title || !questions || !duration) {
-            res.status(400)
-            throw new Error("Please add all required fields")
-        }
-
-        const validatedQuiz = quizSchema.safeParse({
-            title,
-            questions, duration
-        })
-
-        if (!validatedQuiz.success) {
-            console.log(validatedQuiz.error.errors)
-            res.status(400)
-            throw new Error("Invalid quiz data")
-        }
-
-        const { title: validatedTitle, questions: validatedQuestions, duration: validatedDuration } = validatedQuiz.data
+    return async (req: TypedRequest<quizRequestBody>, res: Response, next: NextFunction) => {
 
         try {
+
+            const { title, questions, duration } = req.body
+
+            const userId = req.userId
+
+            if (!userId) {
+                return res.status(500).json({
+                    message: "Missing userId in auth"
+                })
+            }
 
             //tx means transaction
             const createdQuizId = await prisma.$transaction(async tx => {
 
-                if (!req.userId) {
-                    throw new Error('Author doesnt exist')
-                }
-
                 const quiz = await tx.quizzes.create({
                     data: {
-                        title: validatedTitle,
-                        author: req.userId,
-                        duration: validatedDuration,
+                        title: title,
+                        author: userId,
+                        duration: duration,
                     }
                 })
 
-                await Promise.all(validatedQuestions.map(async (question) => {
+                await Promise.all(questions.map(async (question) => {
 
                     await tx.questions.create({
                         data: {
@@ -71,40 +55,38 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
 
 
             res.status(201).json({
-                message: "Quiz added",
+                message: "Quiz created",
                 quizId: createdQuizId
             })
 
         } catch (error) {
-            res.status(500)
-            throw error
+            next(error)
         }
     }
 }
 
 export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
-    return async (req: Request, res: Response) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
 
-        let quizzesWithAuthors;
         try {
-            quizzesWithAuthors = await prisma.quizzes.findMany({
+            const quizzesWithAuthors = await prisma.quizzes.findMany({
                 select: {
                     id: true, title: true, duration: true, users: {
                         select: { id: true, nickname: true }
                     }
                 }
             })
+
+            if (!quizzesWithAuthors || quizzesWithAuthors.length < 1) {
+                return res.status(404).json({
+                    message: "No quizzes to display"
+                })
+            }
+
+            return res.json(quizzesWithAuthors)
+
         } catch (error) {
-            console.log(error)
-            res.status(400)
-            throw new Error("Smth went wrong")
+            next(error)
         }
-
-        if (quizzesWithAuthors.length < 1) {
-            res.status(404)
-            throw new Error("No quizzes to display")
-        }
-
-        res.status(200).json(quizzesWithAuthors)
     }
 }

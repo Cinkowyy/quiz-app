@@ -5,6 +5,7 @@ import getIdentityRoutes from "./routes/identityRoutes";
 import getQuizzesRoutes from "./routes/quizzesRoutes";
 import errorHandler from './middleware/errorMiddleware';
 import { PrismaClient } from '@prisma/client';
+import getAttemptsRoutes from './routes/attemptsRoutes';
 
 const port = process.env.PORT || 3000
 const jwtSecret = process.env.JWT_SECRET
@@ -40,6 +41,7 @@ app.get('/error', (req, res) => {
 
 app.use('/identity', getIdentityRoutes({ prisma, jwtInfo }))
 app.use('/quizzes', getQuizzesRoutes({ prisma, jwtInfo }))
+app.use('/attempts', getAttemptsRoutes({ prisma, jwtInfo }))
 
 app.use(errorHandler)
 
