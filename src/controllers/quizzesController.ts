@@ -12,9 +12,10 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
 
             const { title, questions, duration } = req.body
 
-            const userId = req.userId
+            const userId = req?.userId
 
             if (!userId) {
+                console.error("No userId from auth")
                 return res.status(500).json({
                     message: "Missing userId in auth"
                 })

@@ -105,7 +105,10 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
             const userId = req?.userId
 
             if (!userId) {
-                throw new Error("No user id in request")
+                console.error("No userId from auth")
+                return res.status(500).json({
+                    message: "Missing userId in auth"
+                })
             }
 
             const user = await prisma.users.findFirst({
@@ -114,7 +117,6 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
             })
             res.status(200).json(user)
         } catch (error) {
-            console.log(error)
             next(error)
         }
     }

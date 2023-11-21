@@ -69,6 +69,7 @@ model userAttempts {
   quizId      String        @db.VarChar(36)
   updatedAt   DateTime      @default(now()) @db.Timestamp(0)
   createdAt   DateTime      @default(now()) @db.Timestamp(0)
+  submittedAt DateTime?     @db.Timestamp(0)
   userAnswers userAnswers[]
   users       users         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userAttempts_ibfk_1")
 

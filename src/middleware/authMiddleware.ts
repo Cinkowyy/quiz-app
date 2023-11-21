@@ -1,6 +1,5 @@
 import Jwt from 'jsonwebtoken'
 import { NextFunction, Response } from "express"
-import { IJwtTokenPayload } from '../types/jwtTokenPayloadTypes'
 import { AuthorizedRequest } from '../types/typedRequests'
 
 const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
@@ -29,7 +28,9 @@ const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
             }
 
             // Verify token
-            const decoded = Jwt.verify(token, jwtSecret) as IJwtTokenPayload;
+            const decoded = Jwt.verify(token, jwtSecret) as {
+                sub: string
+            };
 
             req.userId = decoded.sub;
 

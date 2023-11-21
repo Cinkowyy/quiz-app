@@ -58,6 +58,7 @@ CREATE TABLE `userAttempts` (
     `quizId` VARCHAR(36) NOT NULL,
     `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `submittedAt` TIMESTAMP(0) NULL,
 
     INDEX `userAttempts_userId_idx`(`userId`),
     INDEX `userAttempts_quizId_idx`(`quizId`),
@@ -70,6 +71,8 @@ CREATE TABLE `users` (
     `id` VARCHAR(36) NOT NULL DEFAULT (uuid()),
     `nickname` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
+    `salt` VARCHAR(64) NOT NULL,
+    `iterations` INTEGER NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
