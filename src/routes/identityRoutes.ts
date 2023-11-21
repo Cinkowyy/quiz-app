@@ -1,30 +1,25 @@
 import { Router } from 'express';
 
-import { getUserController, getRegisterController, getLoginController } from '../controllers/identityController';
+import { getUserController, getRegisterController, getLoginController, getLogoutController, getRefreshController } from '../controllers/identityController';
 import getAuthorization from '../middleware/authMiddleware';
 import validation from '../middleware/validationMiddleware';
 import { PrismaClient } from '@prisma/client';
-import { loginSchema, registerSchema } from '../types/userTypes';
-import { z } from 'zod';
+import { loginValidationSchema, logoutValidationSchema, refreshValidationSchema, registerValidationSchema } from '../types/userTypes';
 import { JwtInfo } from '../utils/jwtInfo';
 
-const getIdentityRoutes = ({ prisma, jwtInfo }: { prisma: PrismaClient, jwtInfo: JwtInfo}) => {
+const getIdentityRoutes = ({ prisma, jwtInfo }: { prisma: PrismaClient, jwtInfo: JwtInfo }) => {
 
     const router = Router();
 
-    const registerValidationSchema = z.object({
-        body: registerSchema
-    })
-
     router.post('/register', validation(registerValidationSchema), getRegisterController({ prisma }))
-
-    const loginValidationSchema = z.object({
-        body: loginSchema
-    })
 
     router.post('/login', validation(loginValidationSchema), getLoginController({ prisma, jwtInfo }))
 
     router.get('/getUser', getAuthorization({ jwtSecret: jwtInfo.secret }), getUserController({ prisma }))
+
+    router.post('/logout', validation(logoutValidationSchema), getLogoutController({ prisma }))
+    
+    router.post('/refresh', validation(refreshValidationSchema), getRefreshController({ prisma, jwtInfo }))
 
     return router
 }
