@@ -6,3 +6,5 @@ yarn.lock
 # Ignore built ts files
 dist/**/*
 .docker
+
+src/data/seededQuizzes.json

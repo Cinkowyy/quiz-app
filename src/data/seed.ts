@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto"
+import fs from "fs"
 import { quizzes, users } from "./dataToSeed";
 import { UserRegisterBody } from "../types/userTypes";
 import { getHashedPassword } from "../utils/passwordManager";
@@ -54,9 +55,9 @@ const seedDB = async () => {
             }
         })
 
-        const createdQuizzesIds = await prisma.$transaction(async tx => {
+        const createdQuizzes = await prisma.$transaction(async tx => {
 
-            const createdQuizzesIds = Promise.all(mappedQuizzes.map(async (quiz) => {
+            return Promise.all(mappedQuizzes.map(async (quiz) => {
                 const createdQuiz = await tx.quizzes.create({
                     data: {
                         title: quiz.title,
@@ -68,9 +69,9 @@ const seedDB = async () => {
                     }
                 })
 
-                await Promise.all(quiz.questions.map(async (question) => {
+                const questions = await Promise.all(quiz.questions.map(async (question) => {
 
-                    await tx.questions.create({
+                    return await tx.questions.create({
                         data: {
                             content: question.content,
                             quizId: createdQuiz.id,
@@ -83,17 +84,27 @@ const seedDB = async () => {
                                     }))
                                 }
                             }
+                        },
+                        select: {
+                            id: true,
+                            type: true,
+                            answers: {
+                                select: {
+                                    id: true
+                                }
+                            }
                         }
                     })
                 }));
 
-                return createdQuiz['id']
+                return {
+                    ...createdQuiz,
+                    questions
+                }
             }))
-
-            return createdQuizzesIds
         })
 
-        console.log(createdQuizzesIds);
+        fs.writeFileSync('./src/data/seededQuizzes.json', JSON.stringify(createdQuizzes))
 
     } catch (error) {
         console.error(error)
