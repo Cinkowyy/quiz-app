@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from "express"
 
 import { PrismaClient } from "@prisma/client"
 import { TypedRequest } from "../types/typedRequests"
-import { quizRequestBody } from "../types/quizTypes"
+import { QuizRequestBody } from "../types/quizTypes"
 
 export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) => {
 
-    return async (req: TypedRequest<quizRequestBody>, res: Response, next: NextFunction) => {
+    return async (req: TypedRequest<QuizRequestBody>, res: Response, next: NextFunction) => {
 
         try {
 
@@ -29,6 +29,9 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
                         title: title,
                         author: userId,
                         duration: duration,
+                    },
+                    select: {
+                        id: true
                     }
                 })
 

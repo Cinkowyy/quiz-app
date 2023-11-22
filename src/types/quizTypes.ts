@@ -21,4 +21,4 @@ export const quizValidationSchema = z.object({
     })
 })
 
-export type quizRequestBody = z.infer<typeof quizValidationSchema>['body'];
+export type QuizRequestBody = z.infer<typeof quizValidationSchema>['body'];

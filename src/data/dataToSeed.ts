@@ -1,7 +1,10 @@
-export const quizzes = [
+import { QuizRequestBody } from "../types/quizTypes";
+
+export const quizzes: ({ author: string } & QuizRequestBody)[] = [
   {
     title: "Wielki Quiz Wiedzy Ogólnej",
     duration: 30,
+    author: '0',
     questions: [
       {
         content: "Jaka jest stolica Francji?",
@@ -216,6 +219,7 @@ export const quizzes = [
   {
     title: "Wyzwanie Wiedzy",
     duration: 45,
+    author: '0',
     questions: [
       {
         content:
@@ -485,6 +489,7 @@ export const quizzes = [
   {
     title: "Super Quiz",
     duration: 40,
+    author: '2',
     questions: [
       {
         content: "Które z tych krajów leży w Ameryce Południowej?",
@@ -1020,6 +1025,7 @@ export const quizzes = [
   {
     title: "Super Trudny Quiz",
     duration: 15,
+    author: '1',
     questions: [
       {
         content:
