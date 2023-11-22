@@ -125,7 +125,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
             isCorrect: false,
           },
           {
-            content: "Orzeł",
+            content: "Słoń",
             isCorrect: false,
           },
         ],
@@ -154,7 +154,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
       },
       {
         content: "Które z tych miast jest stolicą Polski?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Kraków",
@@ -338,15 +338,15 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
       },
       {
         content: "Które z tych państw nie jest członkiem Unii Europejskiej?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Niemcy",
-            isCorrect: true,
+            isCorrect: false,
           },
           {
             content: "Szwecja",
-            isCorrect: true,
+            isCorrect: false,
           },
           {
             content: "Holandia",
@@ -354,7 +354,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
           },
           {
             content: "Wielka Brytania",
-            isCorrect: false,
+            isCorrect: true,
           },
         ],
       },
@@ -493,7 +493,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
     questions: [
       {
         content: "Które z tych krajów leży w Ameryce Południowej?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Niemcy",
@@ -540,8 +540,8 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
         type: "multi",
         answers: [
           {
-            content: "Krowa",
-            isCorrect: false,
+            content: "Tygrys",
+            isCorrect: true,
           },
           {
             content: "Orzeł",
@@ -689,14 +689,14 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
       },
       {
         content: "Które z tych zwierząt jest płazem?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Koń",
             isCorrect: false,
           },
           {
-            content: "Karp",
+            content: "Żaba",
             isCorrect: true,
           },
           {
@@ -802,15 +802,15 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
       },
       {
         content: "Które z tych państw nie jest członkiem Unii Europejskiej?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Niemcy",
-            isCorrect: true,
+            isCorrect: false,
           },
           {
             content: "Szwecja",
-            isCorrect: true,
+            isCorrect: false,
           },
           {
             content: "Holandia",
@@ -818,7 +818,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
           },
           {
             content: "Wielka Brytania",
-            isCorrect: false,
+            isCorrect: true,
           },
         ],
       },
@@ -868,7 +868,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
       },
       {
         content: "Które z tych zwierząt jest ssakiem?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Rekin",
@@ -912,7 +912,7 @@ export const quizzes: ({ author: string } & QuizRequestBody)[] = [
       },
       {
         content: "Które z tych miast jest stolicą Polski?",
-        type: "multi",
+        type: "single",
         answers: [
           {
             content: "Kraków",

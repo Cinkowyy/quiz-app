@@ -90,7 +90,8 @@ const seedDB = async () => {
                             type: true,
                             answers: {
                                 select: {
-                                    id: true
+                                    id: true,
+                                    isCorrect: true
                                 }
                             }
                         }
