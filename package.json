@@ -2,6 +2,8 @@
   "scripts": {
     "run:js": "node ./dist/app.js",
     "run:ts": "ts-node ./src/app.ts",
+    "seed:js": "node ./dist/data/seed.js",
+    "seed:ts": "ts-node ./src/data/seed.js",
     "dev": "nodemon",
     "build": "tsc && cp -r src/data dist/prisma && cp -r src/* dist",
     "migrate:dev": "npx prisma migrate dev",

@@ -1207,3 +1207,21 @@ export const quizzes = [
     ],
   },
 ];
+
+export const users = [
+  {
+    email: "cinkowyy@test.pl",
+    nickname: "Cinkowyy",
+    password: "1qazxsW@"
+  },
+  {
+    email: "adi@test.pl",
+    nickname: "Adi",
+    password: "qwerty123"
+  },
+  {
+    email: "jola@test.pl",
+    nickname: "Jola",
+    password: "zaq1@WSX"
+  }
+]
