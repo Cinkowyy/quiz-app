@@ -105,6 +105,31 @@ const seedDB = async () => {
             }))
         })
 
+        // const questionsList = await prisma.questions.findMany({
+        //     select: {
+        //         id: true,
+        //         answers: {
+        //             select: {
+        //                 id: true,
+        //                 isCorrect: true
+        //             }
+        //         }
+        //     },
+        //     where: {
+        //         quizId: createdQuizzes[0]['id']
+        //     }
+        // })
+
+        // const userAnswers = await prisma.userAnswers.findMany({
+        //     select: {
+        //         questionId: true,
+        //         answerId: true
+        //     },
+        //     where: {
+        //         attemptId: 'attempt id'
+        //     }
+        // })
+
         fs.writeFileSync('./src/data/seededQuizzes.json', JSON.stringify(createdQuizzes))
 
     } catch (error) {
