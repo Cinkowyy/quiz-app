@@ -1,6 +1,10 @@
 import { QuizRequestBody } from "../types/quizTypes";
 
-export const quizzes: ({ author: string } & Omit<QuizRequestBody, 'categoryId'>)[] = [
+type QuizToSeed = ({
+  author: string
+} & Omit<QuizRequestBody, 'categoryId'>)
+
+export const quizzes: QuizToSeed[] = [
   {
     title: "Wielki Quiz Wiedzy Ogólnej",
     duration: 30,
