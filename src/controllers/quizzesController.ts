@@ -10,7 +10,7 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
 
         try {
 
-            const { title, questions, duration } = req.body
+            const { title, categoryId, questions, duration } = req.body
 
             const userId = req?.userId
 
@@ -21,12 +21,15 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
                 })
             }
 
+            //TODO: check if category exists
+
             //tx means transaction
             const createdQuizId = await prisma.$transaction(async tx => {
 
                 const quiz = await tx.quizzes.create({
                     data: {
                         title: title,
+                        categoryId: categoryId,
                         author: userId,
                         duration: duration,
                     },

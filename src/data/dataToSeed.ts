@@ -1,6 +1,6 @@
 import { QuizRequestBody } from "../types/quizTypes";
 
-export const quizzes: ({ author: string } & QuizRequestBody)[] = [
+export const quizzes: ({ author: string } & Omit<QuizRequestBody, 'categoryId'>)[] = [
   {
     title: "Wielki Quiz Wiedzy Ogólnej",
     duration: 30,
@@ -1230,4 +1230,23 @@ export const users = [
     nickname: "Jola",
     password: "zaq1@WSX"
   }
+]
+
+export const quizCategories = [
+  "Wiedza Ogólna",
+  "Geografia Świata",
+  "Historia Świata",
+  "Nauka i Technologia",
+  "Literatura Światowa",
+  "Sztuka i Kultura",
+  "Nauki Społeczne",
+  "Sporty",
+  "Zwierzęta",
+  "Kulinaria",
+  "Film i Telewizja",
+  "Muzyka",
+  "Nauka Przyrodnicza",
+  "Mythologia",
+  "Języki Świata",
+  "Ciekawostki Światowe"
 ]

@@ -5,6 +5,7 @@ export const quizValidationSchema = z.object({
         title: z.string({
             required_error: "Title is required"
         }),
+        categoryId: z.string(),
         duration: z.number(),
         questions: z.array(z.object({
             content: z.string(),

@@ -34,15 +34,25 @@ model questions {
   @@index([quizId])
 }
 
+model categories {
+  id        String    @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  name      String    @db.VarChar(255)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  quizzes   quizzes[]
+}
+
 model quizzes {
-  id        String      @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
-  title     String      @db.VarChar(255)
-  author    String      @db.VarChar(36)
-  duration  Int
-  updatedAt DateTime    @default(now()) @db.Timestamp(0)
-  createdAt DateTime    @default(now()) @db.Timestamp(0)
-  questions questions[]
-  users     users       @relation(fields: [author], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_1")
+  id         String      @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  categoryId String      @db.VarChar(36)
+  title      String      @db.VarChar(255)
+  author     String      @db.VarChar(36)
+  duration   Int
+  updatedAt  DateTime    @default(now()) @db.Timestamp(0)
+  createdAt  DateTime    @default(now()) @db.Timestamp(0)
+  questions  questions[]
+  users      users       @relation(fields: [author], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_1")
+  categories categories  @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_2")
 
   @@index([author])
 }

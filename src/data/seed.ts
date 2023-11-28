@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto"
 import fs from "fs"
-import { quizzes, users } from "./dataToSeed";
+import { quizzes, users, quizCategories } from "./dataToSeed";
 import { UserRegisterBody } from "../types/userTypes";
 import { getHashedPassword } from "../utils/passwordManager";
 
@@ -46,11 +46,26 @@ const seedDB = async () => {
     try {
         const createdUsersIds = await createUsers(users)
 
+        const createdCategoriesId = await Promise.all(quizCategories.map(async (category) => {
+            const createdCategory = await prisma.categories.create({
+                data: {
+                    name: category
+                },
+                select: {
+                    id: true
+                }
+            })
+
+            return createdCategory.id
+        }))
+
+
         const mappedQuizzes = quizzes.map((quiz) => {
             const authorIndex = parseInt(quiz.author)
 
             return {
                 ...quiz,
+                categoryId: createdCategoriesId[0],
                 author: createdUsersIds[authorIndex]['id']
             }
         })
@@ -63,6 +78,7 @@ const seedDB = async () => {
                         title: quiz.title,
                         author: quiz.author,
                         duration: quiz.duration,
+                        categoryId: quiz.categoryId
                     },
                     select: {
                         id: true
@@ -104,31 +120,6 @@ const seedDB = async () => {
                 }
             }))
         })
-
-        // const questionsList = await prisma.questions.findMany({
-        //     select: {
-        //         id: true,
-        //         answers: {
-        //             select: {
-        //                 id: true,
-        //                 isCorrect: true
-        //             }
-        //         }
-        //     },
-        //     where: {
-        //         quizId: createdQuizzes[0]['id']
-        //     }
-        // })
-
-        // const userAnswers = await prisma.userAnswers.findMany({
-        //     select: {
-        //         questionId: true,
-        //         answerId: true
-        //     },
-        //     where: {
-        //         attemptId: 'attempt id'
-        //     }
-        // })
 
         fs.writeFileSync('./src/data/seededQuizzes.json', JSON.stringify(createdQuizzes))
 
