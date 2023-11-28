@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { TypedRequest } from "../types/typedRequests";
 import { NextFunction, Response } from "express";
-import { BeginAttemptBody, SubmitAnswerBody, SubmitAttemptBody } from "../types/attemptsTypes";
+import { BeginAttemptBody, SubmitAnswerBody, SubmitAttemptBody, SubmitGuestAttemptBody } from "../types/attemptsTypes";
+import { calculateScore } from "../utils/quizzesManager";
 import dayjs from "dayjs";
 import ms from "ms";
 
@@ -54,7 +55,7 @@ export const getSubmitAnswerController = ({ prisma }: { prisma: PrismaClient }) 
             })
 
             return res.sendStatus(204)
-            
+
         } catch (error) {
             next(error)
         }
@@ -78,6 +79,7 @@ export const getSubmitAttemptController = ({ prisma }: { prisma: PrismaClient })
 
             const attempt = await prisma.userAttempts.findFirst({
                 select: {
+                    quizId: true,
                     submittedAt: true
                 },
                 where: {
@@ -106,29 +108,77 @@ export const getSubmitAttemptController = ({ prisma }: { prisma: PrismaClient })
                 }
             })
 
-            //TODO: test this and refactor
-            const userAnswers = await prisma.answers.findMany({
+            const questionsList = await prisma.questions.findMany({
                 select: {
                     id: true,
-                    questionId: true,
-                    isCorrect: true,
-                },
-                where: {
-                    userAnswers: {
-                        every: {
-                            attemptId: attemptId
+                    answers: {
+                        select: {
+                            id: true,
+                            isCorrect: true
                         }
                     }
                 },
+                where: {
+                    quizId: attempt.quizId
+                }
+            })
+            
+            const userAnswers = await prisma.userAnswers.findMany({
+                select: {
+                    questionId: true,
+                    answerId: true
+                },
+                where: {
+                    attemptId: attemptId
+                }
             })
 
-            const questionsCount = userAnswers.length
-            const correctCount = userAnswers.filter((answer) => answer.isCorrect).length
+            const { userScore, maxScore } = calculateScore(questionsList, userAnswers)
 
             return res.json({
                 message: "Attempt submitted",
-                questionsCount,
-                correctCount
+                userScore,
+                maxScore
+            })
+
+        } catch (error) {
+            next(error)
+        }
+    }
+}
+
+export const getSubmitGuestAttemptController = ({ prisma }: { prisma: PrismaClient }) => {
+    return async (req: TypedRequest<SubmitGuestAttemptBody>, res: Response, next: NextFunction) => {
+        try {
+            const { quizId, answers } = req.body
+
+            const questionsList = await prisma.questions.findMany({
+                select: {
+                    id: true,
+                    answers: {
+                        select: {
+                            id: true,
+                            isCorrect: true
+                        }
+                    }
+                },
+                where: {
+                    quizId: quizId
+                }
+            })
+
+            if (questionsList.length < 1) {
+                return res.status(400).json({
+                    message: "No questions in this quiz. Probably bad quizId"
+                })
+            }
+
+            const { userScore, maxScore } = calculateScore(questionsList, answers)
+
+            return res.json({
+                message: "Attempt submitted",
+                userScore,
+                maxScore
             })
 
         } catch (error) {

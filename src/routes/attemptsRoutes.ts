@@ -2,10 +2,10 @@ import { Router } from "express";
 
 import { PrismaClient } from "@prisma/client";
 import { JwtInfo } from "../utils/jwtInfo";
-import { getBeginAttemptController, getSubmitAnswerController, getSubmitAttemptController } from "../controllers/attemptsController";
+import { getBeginAttemptController, getSubmitAnswerController, getSubmitAttemptController, getSubmitGuestAttemptController } from "../controllers/attemptsController";
 import getAuthorization from "../middleware/authMiddleware";
 import validation from "../middleware/validationMiddleware";
-import { beginAttemptValidationSchema, submitAnswerValidationSchema, submitAttemptValidationSchema } from "../types/attemptsTypes";
+import { beginAttemptValidationSchema, submitAnswerValidationSchema, submitAttemptValidationSchema, submitGuestAttemptValidationSchema } from "../types/attemptsTypes";
 
 const getAttemptsRoutes = ({ prisma, jwtInfo, }: { prisma: PrismaClient; jwtInfo: JwtInfo; }) => {
     const router = Router();
@@ -28,6 +28,12 @@ const getAttemptsRoutes = ({ prisma, jwtInfo, }: { prisma: PrismaClient; jwtInfo
         getAuthorization({ jwtSecret: jwtInfo.secret }),
         validation(submitAnswerValidationSchema),
         getSubmitAnswerController({ prisma })
+    );
+
+    router.post(
+        "/submitGuestAttempt",
+        validation(submitGuestAttemptValidationSchema),
+        getSubmitGuestAttemptController({ prisma })
     );
 
     return router;

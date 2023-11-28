@@ -1,7 +1,7 @@
 type RawQuestion = {
     id: string;
     answers: {
-        answerId: string;
+        id: string;
         isCorrect: boolean;
     }[];
 };
@@ -31,7 +31,7 @@ const prepareData = (
     const mappedQuestions = rawQuestions.map((question) => {
         const correctAnswerIds = question.answers
             .filter((answer) => answer.isCorrect)
-            .map((answer) => answer.answerId);
+            .map((answer) => answer.id);
 
         return {
             questionId: question.id,

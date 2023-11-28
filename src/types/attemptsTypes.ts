@@ -20,6 +20,17 @@ export const submitAnswerValidationSchema = z.object({
     })
 })
 
+export const submitGuestAttemptValidationSchema = z.object({
+    body: z.object({
+        quizId: z.string(),
+        answers: z.array(z.object({
+            questionId: z.string(),
+            answerId: z.string()
+        }))
+    })
+})
+
 export type BeginAttemptBody = z.infer<typeof beginAttemptValidationSchema>['body']
 export type SubmitAttemptBody = z.infer<typeof submitAttemptValidationSchema>['body']
 export type SubmitAnswerBody = z.infer<typeof submitAnswerValidationSchema>['body']
+export type SubmitGuestAttemptBody = z.infer<typeof submitGuestAttemptValidationSchema>['body']
