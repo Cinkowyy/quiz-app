@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express"
 import { PrismaClient } from "@prisma/client"
 import { TypedRequest } from "../types/typedRequests"
 import { QuizRequestBody } from "../types/quizTypes"
+import errorResponse from "../utils/errorResponse"
 
 export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) => {
 
@@ -14,12 +15,7 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
 
             const userId = req?.userId
 
-            if (!userId) {
-                console.error("No userId from auth")
-                return res.status(500).json({
-                    message: "Missing userId in auth"
-                })
-            }
+            if (!userId) throw new Error("Missing userId in auth")
 
             //TODO: check if category exists
 
@@ -85,8 +81,11 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
             })
 
             if (!quizzesWithAuthors || quizzesWithAuthors.length < 1) {
-                return res.status(404).json({
-                    message: "No quizzes to display"
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "No quizzes to display",
+                    error: "NoQuizzes"
                 })
             }
 

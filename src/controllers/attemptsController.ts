@@ -5,6 +5,7 @@ import { BeginAttemptBody, SubmitAnswerBody, SubmitAttemptBody, SubmitGuestAttem
 import { calculateScore } from "../utils/quizzesManager";
 import dayjs from "dayjs";
 import ms from "ms";
+import errorResponse from "../utils/errorResponse";
 
 export const getBeginAttemptController = ({ prisma }: { prisma: PrismaClient }) => {
 
@@ -14,12 +15,7 @@ export const getBeginAttemptController = ({ prisma }: { prisma: PrismaClient }) 
             const userId = req?.userId
             const { quizId } = req.body
 
-            if (!userId) {
-                console.error("No userId from auth")
-                return res.status(500).json({
-                    message: "Missing userId in auth"
-                })
-            }
+            if (!userId) throw new Error("Missing userId in auth")
 
             const createdAttempt = await prisma.userAttempts.create({
                 data: {
@@ -70,12 +66,7 @@ export const getSubmitAttemptController = ({ prisma }: { prisma: PrismaClient })
             const userId = req?.userId
             const { attemptId } = req.body
 
-            if (!userId) {
-                console.error("No userId from auth")
-                return res.status(500).json({
-                    message: "Missing userId in auth"
-                })
-            }
+            if (!userId) throw new Error("Missing userId in auth")
 
             const attempt = await prisma.userAttempts.findFirst({
                 select: {
@@ -88,14 +79,20 @@ export const getSubmitAttemptController = ({ prisma }: { prisma: PrismaClient })
             })
 
             if (!attempt) {
-                return res.status(404).json({
-                    message: "Attempt not found"
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "Attempt not found",
+                    error: "AttemptNotFound"
                 })
             }
 
             if (attempt.submittedAt) {
-                return res.status(400).json({
-                    message: "Attempt is already submitted"
+                return errorResponse({
+                    response: res,
+                    status: 400,
+                    message: "Attempt is already submitted",
+                    error: "AttemptSubmitted"
                 })
             }
 
@@ -122,7 +119,7 @@ export const getSubmitAttemptController = ({ prisma }: { prisma: PrismaClient })
                     quizId: attempt.quizId
                 }
             })
-            
+
             const userAnswers = await prisma.userAnswers.findMany({
                 select: {
                     questionId: true,
@@ -168,8 +165,11 @@ export const getSubmitGuestAttemptController = ({ prisma }: { prisma: PrismaClie
             })
 
             if (questionsList.length < 1) {
-                return res.status(400).json({
-                    message: "No questions in this quiz. Probably bad quizId"
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "No questions in this quiz. Probably quiz doeasn't exist",
+                    error: "QuizNotFound"
                 })
             }
 

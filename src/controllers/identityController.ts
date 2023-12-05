@@ -8,6 +8,7 @@ import { AuthorizedRequest, TypedRequest } from "../types/typedRequests"
 import { getHashedPassword } from "../utils/passwordManager"
 import { createSession } from "../utils/sessionManager";
 import { JwtInfo } from "../utils/jwtInfo";
+import errorResponse from "../utils/errorResponse";
 
 export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
 
@@ -20,8 +21,11 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
             const userExists = await prisma.users.findFirst({ where: { email } })
 
             if (userExists) {
-                return res.status(400).json({
-                    message: "User already exists"
+                return errorResponse({
+                    response: res,
+                    status: 400,
+                    message: "User already exists",
+                    error: "UserExists"
                 })
             }
 
@@ -64,8 +68,11 @@ export const getLoginController = ({ prisma, jwtInfo }: { prisma: PrismaClient, 
             const user = await prisma.users.findFirst({ where: { email } })
 
             if (!user) {
-                return res.status(400).json({
-                    message: 'Invalid credentials'
+                return errorResponse({
+                    response: res,
+                    status: 400,
+                    message: "Invalid credentials",
+                    error: "InvalidCredentials"
                 })
             }
 
@@ -76,8 +83,11 @@ export const getLoginController = ({ prisma, jwtInfo }: { prisma: PrismaClient, 
             });
 
             if (hashedPassword !== user.password) {
-                return res.status(400).json({
-                    message: 'Invalid credentials'
+                return errorResponse({
+                    response: res,
+                    status: 400,
+                    message: "Invalid credentials",
+                    error: "InvalidCredentials"
                 })
             }
 
@@ -104,12 +114,7 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
         try {
             const userId = req?.userId
 
-            if (!userId) {
-                console.error("No userId from auth")
-                return res.status(500).json({
-                    message: "Missing userId in auth"
-                })
-            }
+            if (!userId) throw new Error("Missing userId in auth")
 
             const user = await prisma.users.findFirst({
                 where: { id: userId },
@@ -136,8 +141,11 @@ export const getLogoutController = ({ prisma }: { prisma: PrismaClient }) => {
             };
 
             if (!decoded || !decoded.sub || !decoded.jti) {
-                return res.status(401).json({
-                    message: "Refresh token is invalid"
+                return errorResponse({
+                    response: res,
+                    status: 401,
+                    message: "Invalid refresh token",
+                    error: "InvalidRefreshToken"
                 })
             }
 
@@ -153,8 +161,11 @@ export const getLogoutController = ({ prisma }: { prisma: PrismaClient }) => {
             });
 
             if (!session) {
-                return res.status(404).json({
-                    message: "Session not found"
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "Session not found",
+                    error: "SessionNotFound"
                 })
             }
 
@@ -172,6 +183,7 @@ export const getLogoutController = ({ prisma }: { prisma: PrismaClient }) => {
         }
     }
 }
+
 export const getRefreshController = ({ prisma, jwtInfo }: { prisma: PrismaClient, jwtInfo: JwtInfo }) => {
 
     return async (req: TypedRequest<RefreshBody>, res: Response, next: NextFunction) => {
@@ -185,8 +197,11 @@ export const getRefreshController = ({ prisma, jwtInfo }: { prisma: PrismaClient
             };
 
             if (!decoded || !decoded.sub || !decoded.jti) {
-                return res.status(401).json({
-                    message: "Refresh token is invalid"
+                return errorResponse({
+                    response: res,
+                    status: 401,
+                    message: "Invalid refresh token",
+                    error: "InvalidRefreshToken"
                 })
             }
 
@@ -202,16 +217,22 @@ export const getRefreshController = ({ prisma, jwtInfo }: { prisma: PrismaClient
             });
 
             if (!session) {
-                return res.status(404).json({
-                    message: "Session not found"
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "Session not found",
+                    error: "SessionNotFound"
                 })
             }
 
             try {
                 jwt.verify(refreshToken, session.secret)
             } catch (error) {
-                return res.status(401).json({
-                    message: "Refresh token is invalid"
+                return errorResponse({
+                    response: res,
+                    status: 401,
+                    message: "Invalid refresh token",
+                    error: "InvalidRefreshToken"
                 })
             }
 
@@ -225,8 +246,11 @@ export const getRefreshController = ({ prisma, jwtInfo }: { prisma: PrismaClient
             })
 
             if (!user) {
-                return res.status(404).json({
-                    message: "User not found"
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "User not found",
+                    error: "UserNotFound"
                 })
             }
 
