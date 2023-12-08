@@ -1,6 +1,7 @@
 import Jwt from 'jsonwebtoken'
 import { NextFunction, Response } from "express"
 import { AuthorizedRequest } from '../types/typedRequests'
+import errorResponse from '../utils/errorResponse'
 
 const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
     return async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
@@ -8,22 +9,30 @@ const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
         try {
 
             if (!req.headers.authorization) {
-                return res.status(401).json({
-                    message: "Missing Authorization header"
+                return errorResponse({
+                    response: res,
+                    status: 401,
+                    message: "Missing Authorization header",
+                    error: "MissingHeader"
                 })
-
             }
 
             if (!req.headers.authorization.startsWith("Bearer")) {
-                return res.status(401).json({
-                    message: "Invalid Authorization header"
+                return errorResponse({
+                    response: res,
+                    status: 401,
+                    message: "Invalid Authorization header",
+                    error: "InvalidHeader"
                 })
             }
 
             const token = req.headers.authorization.split(' ')[1]
             if (!token) {
-                return res.status(401).json({
-                    message: "Unauthorized, missing token"
+                return errorResponse({
+                    response: res,
+                    status: 401,
+                    message: "Unauthorized, missing token",
+                    error: "MissingToken"
                 })
             }
 
@@ -37,8 +46,11 @@ const getAuthorization = ({ jwtSecret }: { jwtSecret: string }) => {
             next()
         } catch (error) {
             console.log(error)
-            return res.status(401).json({
-                message: 'Unauthorized'
+            return errorResponse({
+                response: res,
+                status: 401,
+                message: "Unauthorized, other error",
+                error: "Unauhorized"
             })
         }
 
