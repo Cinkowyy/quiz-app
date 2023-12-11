@@ -111,3 +111,30 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
         }
     }
 }
+
+export const getCategoriesController = ({ prisma }: { prisma: PrismaClient }) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            const categories = await prisma.categories.findMany({
+                select: {
+                    id: true,
+                    name: true
+                }
+            })
+
+            if (categories.length == 0) {
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "No categories",
+                    error: "NoCategories"
+                })
+            }
+
+            res.json(categories)
+        } catch (error) {
+            next(error)
+        }
+    }
+}

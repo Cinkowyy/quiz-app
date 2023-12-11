@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import getAuthorization from '../middleware/authMiddleware';
-import { getCreateQuizController, getQuizzesController } from '../controllers/quizzesController';
+import { getCategoriesController, getCreateQuizController, getQuizzesController } from '../controllers/quizzesController';
 import { PrismaClient } from '@prisma/client';
 import { JwtInfo } from '../utils/jwtInfo';
 import validation from '../middleware/validationMiddleware';
@@ -14,6 +14,8 @@ const getQuizzesRoutes = ({ prisma, jwtInfo }: { prisma: PrismaClient, jwtInfo: 
     router.post('/createQuiz', getAuthorization({ jwtSecret: jwtInfo.secret }), validation(quizValidationSchema), getCreateQuizController({ prisma }))
     
     router.get('/getQuizzes', getQuizzesController({ prisma }))
+    
+    router.get('/getCategories', getCategoriesController({ prisma }))
 
     return router
 }
