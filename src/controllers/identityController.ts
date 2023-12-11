@@ -118,7 +118,7 @@ export const getUserController = ({ prisma }: { prisma: PrismaClient }) => {
 
             const user = await prisma.users.findFirst({
                 where: { id: userId },
-                select: { email: true, nickname: true }
+                select: { id: true, email: true, nickname: true }
             })
             res.status(200).json(user)
         } catch (error) {

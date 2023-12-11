@@ -10,7 +10,7 @@ export const registerValidationSchema = z.object({
 
 export const loginValidationSchema = z.object({
     body: z.object({
-        email: z.string().email(),
+        email: z.string(),
         password: z.string()
     })
 })
