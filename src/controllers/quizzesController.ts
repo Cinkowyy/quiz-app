@@ -74,7 +74,11 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
         try {
             const quizzesWithAuthors = await prisma.quizzes.findMany({
                 select: {
-                    id: true, title: true, duration: true, users: {
+                    id: true, title: true, duration: true, categories: {
+                        select: {
+                            name: true
+                        }
+                    }, users: {
                         select: { id: true, nickname: true }
                     }
                 }
@@ -94,6 +98,7 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
                     id: quiz.id,
                     title: quiz.title,
                     duration: quiz.duration,
+                    category: quiz.categories.name,
                     author: quiz.users
                 }
 
