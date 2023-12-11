@@ -89,7 +89,17 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
                 })
             }
 
-            return res.json(quizzesWithAuthors)
+            const mappedQuizzes = quizzesWithAuthors.map(quiz => {
+                return {
+                    id: quiz.id,
+                    title: quiz.title,
+                    duration: quiz.duration,
+                    author: quiz.users
+                }
+
+            })
+
+            return res.json(mappedQuizzes)
 
         } catch (error) {
             next(error)
