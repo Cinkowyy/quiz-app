@@ -80,6 +80,11 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
                         }
                     }, users: {
                         select: { id: true, nickname: true }
+                    },
+                    _count: {
+                        select: {
+                            questions: true
+                        }
                     }
                 }
             })
@@ -99,7 +104,8 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
                     title: quiz.title,
                     duration: quiz.duration,
                     category: quiz.categories.name,
-                    author: quiz.users
+                    author: quiz.users,
+                    questionsCount: quiz._count.questions
                 }
 
             })
