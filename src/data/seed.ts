@@ -78,7 +78,8 @@ const seedDB = async () => {
                         title: quiz.title,
                         author: quiz.author,
                         duration: quiz.duration,
-                        categoryId: quiz.categoryId
+                        categoryId: quiz.categoryId,
+                        visibility: quiz.visibility
                     },
                     select: {
                         id: true

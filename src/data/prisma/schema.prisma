@@ -43,16 +43,17 @@ model categories {
 }
 
 model quizzes {
-  id         String      @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
-  categoryId String      @db.VarChar(36)
-  title      String      @db.VarChar(255)
-  author     String      @db.VarChar(36)
+  id         String          @id @default(dbgenerated("(uuid())")) @db.VarChar(36)
+  categoryId String          @db.VarChar(36)
+  title      String          @db.VarChar(255)
+  author     String          @db.VarChar(36)
+  visibility quiz_visibility @default(public)
   duration   Int
-  updatedAt  DateTime    @default(now()) @db.Timestamp(0)
-  createdAt  DateTime    @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime        @default(now()) @db.Timestamp(0)
+  createdAt  DateTime        @default(now()) @db.Timestamp(0)
   questions  questions[]
-  users      users       @relation(fields: [author], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_1")
-  categories categories  @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_2")
+  users      users           @relation(fields: [author], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_1")
+  categories categories      @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "quizzes_ibfk_2")
 
   @@index([author])
 }
@@ -120,4 +121,9 @@ model sessions {
 enum questions_type {
   single
   multi
+}
+
+enum quiz_visibility {
+  public
+  private
 }

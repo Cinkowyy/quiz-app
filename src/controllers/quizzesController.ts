@@ -11,7 +11,7 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
 
         try {
 
-            const { title, categoryId, questions, duration } = req.body
+            const { title, categoryId, questions, duration, visibility } = req.body
 
             const userId = req?.userId
 
@@ -28,6 +28,7 @@ export const getCreateQuizController = ({ prisma }: { prisma: PrismaClient }) =>
                         categoryId: categoryId,
                         author: userId,
                         duration: duration,
+                        visibility: visibility
                     },
                     select: {
                         id: true
@@ -85,7 +86,10 @@ export const getQuizzesController = ({ prisma }: { prisma: PrismaClient }) => {
                         select: {
                             questions: true
                         }
-                    }
+                    },
+                },
+                where: {
+                    visibility: 'public'
                 }
             })
 
@@ -144,3 +148,5 @@ export const getCategoriesController = ({ prisma }: { prisma: PrismaClient }) =>
         }
     }
 }
+
+//TODO: add endpoint to change quiz visibility

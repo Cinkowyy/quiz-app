@@ -7,6 +7,7 @@ export const quizValidationSchema = z.object({
         }),
         categoryId: z.string(),
         duration: z.number(),
+        visibility: z.enum(['public', 'private']),
         questions: z.array(z.object({
             content: z.string(),
             type: z.enum(['single', 'multi']),

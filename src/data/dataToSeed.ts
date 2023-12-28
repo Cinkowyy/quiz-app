@@ -8,6 +8,7 @@ export const quizzes: QuizToSeed[] = [
   {
     title: "Wielki Quiz Wiedzy Ogólnej",
     duration: 30,
+    visibility: 'public',
     author: '0',
     questions: [
       {
@@ -223,6 +224,7 @@ export const quizzes: QuizToSeed[] = [
   {
     title: "Wyzwanie Wiedzy",
     duration: 45,
+    visibility: 'public',
     author: '0',
     questions: [
       {
@@ -493,6 +495,7 @@ export const quizzes: QuizToSeed[] = [
   {
     title: "Super Quiz",
     duration: 40,
+    visibility: 'public',
     author: '2',
     questions: [
       {
@@ -1029,6 +1032,7 @@ export const quizzes: QuizToSeed[] = [
   {
     title: "Super Trudny Quiz",
     duration: 15,
+    visibility: 'public',
     author: '1',
     questions: [
       {
