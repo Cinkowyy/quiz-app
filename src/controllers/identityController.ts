@@ -49,7 +49,7 @@ export const getRegisterController = ({ prisma }: { prisma: PrismaClient }) => {
                 }
             })
 
-            res.status(200).json({
+            res.status(201).json({
                 message: "User created succesfully"
             })
 
@@ -97,7 +97,7 @@ export const getLoginController = ({ prisma, jwtInfo }: { prisma: PrismaClient, 
                 jwtInfo
             })
 
-            res.status(201).json({
+            res.status(200).json({
                 accessToken,
                 refreshToken
             })
