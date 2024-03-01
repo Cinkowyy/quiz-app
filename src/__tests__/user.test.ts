@@ -66,4 +66,7 @@ describe("user", () => {
         })
     })
 
+    afterAll(async () => {
+        prisma.$disconnect()
+    })
 })
