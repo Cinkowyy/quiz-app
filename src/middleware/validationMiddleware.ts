@@ -18,7 +18,6 @@ const validation = (schema: SchemaType) => (req: Request, res: Response, next: N
   const validated = schema.safeParse(params)
 
   if (!validated.success) {
-    console.log(validated.error.errors)
     return res.status(400).json({
       error: 'ValidationError',
       errors: validated.error.errors
