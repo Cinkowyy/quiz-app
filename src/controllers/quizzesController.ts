@@ -149,4 +149,50 @@ export const getCategoriesController = ({ prisma }: { prisma: PrismaClient }) =>
     }
 }
 
+export const getQuizController = ({ prisma }: { prisma: PrismaClient }) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+
+        const { quizId } = req.params;
+
+        try {
+            const quiz = await prisma.quizzes.findFirst(
+                {
+                    select: {
+                        id: true,
+                        title: true,
+                        duration: true,
+                        questions: {
+                            select: {
+                                id: true,
+                                content: true,
+                                type: true,
+                                answers: {
+                                    select: {
+                                        id: true,
+                                        content: true,
+                                        isCorrect: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    where: { id: quizId }
+                })
+
+            if (!quiz) {
+                return errorResponse({
+                    response: res,
+                    status: 404,
+                    message: "Quiz not found",
+                    error: "QuizNotFound"
+                })
+            }
+
+            res.json(quiz)
+        } catch (error) {
+            next(error)
+        }
+    }
+}
+
 //TODO: add endpoint to change quiz visibility

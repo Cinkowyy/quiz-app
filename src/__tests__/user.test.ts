@@ -59,8 +59,10 @@ describe("user", () => {
                 })
 
                 expect(statusCode).toBe(200)
-                expect(typeof body['accessToken']).toBe('string')
-                expect(typeof body['refreshToken']).toBe('string')
+                expect(body).toEqual({
+                    accessToken: expect.any(String),
+                    refreshToken: expect.any(String)
+                })
 
             })
         })
