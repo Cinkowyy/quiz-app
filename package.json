@@ -30,6 +30,7 @@
     "@types/ms": "^0.7.34",
     "@types/node": "^18.16.1",
     "@types/supertest": "^6.0.2",
+    "jest-mock-extended": "^3.0.5",
     "nodemon": "^2.0.22",
     "prettier": "3.0.3",
     "prisma": "^5.4.2",
