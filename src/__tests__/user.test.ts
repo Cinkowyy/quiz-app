@@ -24,6 +24,11 @@ const user = {
     password: 'qwerty123',
 };
 
+const tokenWithNotExistingSession =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxYWZhOTM1ZC04NDcxLTExZWUtOTE1OC0wMjQyYWMxNDAwMDIiLCJqdGkiOiI1ZGFmNTRlZi04NDcxLTExZWUtOTE1OC0wMjQyYWMxNDAwMDIiLCJpYXQiOjE3MDAxMzMyOTMsImV4cCI6MTcwMDIxOTY5M30.PYk1mll6Y3trsu_uuOdmlokV-_7VChu5bNhDnFtX6A4';
+
+let validRefreshToken: string;
+
 describe('user', () => {
     describe('identity register route', () => {
         describe('given playload has missing param', () => {
@@ -99,9 +104,54 @@ describe('user', () => {
                     accessToken: expect.any(String),
                     refreshToken: expect.any(String),
                 });
+
+                validRefreshToken = body.refreshToken;
             });
         });
     }),
+        describe('identity logout route', () => {
+            describe('given payload has no refresh token', () => {
+                it('should return a 400 status', async () => {
+                    const { body, statusCode } = await supertest(app).post('/identity/logout');
+
+                    expect(statusCode).toBe(400);
+                    expect(body.error).toBe('ValidationError');
+                });
+            });
+            describe('given refresh token is invalid', () => {
+                it('should return a 401 status', async () => {
+                    const { body, statusCode } = await supertest(app)
+                        .post('/identity/logout')
+                        .send({
+                            refreshToken: 'invalidRefreshTOken',
+                        });
+
+                    expect(statusCode).toBe(401);
+                    expect(body.error).toBe('InvalidRefreshToken');
+                });
+            });
+            describe('session not found', () => {
+                it('should return a 404 status', async () => {
+                    const { body, statusCode } = await supertest(app)
+                        .post('/identity/logout')
+                        .send({
+                            refreshToken: tokenWithNotExistingSession,
+                        });
+
+                    expect(statusCode).toBe(404);
+                    expect(body.error).toBe('SessionNotFound');
+                });
+            });
+            describe('session succesfully deleted', () => {
+                it('should return a 204 status', async () => {
+                    const { statusCode } = await supertest(app).post('/identity/logout').send({
+                        refreshToken: validRefreshToken,
+                    });
+
+                    expect(statusCode).toBe(204);
+                });
+            });
+        });
     afterAll(async () => {
         const userToDelete = await prisma.users.findFirst({
             where: {
